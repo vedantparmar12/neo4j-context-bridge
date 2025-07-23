@@ -8,7 +8,7 @@ A production-ready Model Context Protocol (MCP) server that uses Neo4j graph dat
 - 🤖 **Smart Context Extraction**: Automatically identify and store code blocks, decisions, and requirements
 - 🔍 **Semantic Search**: Vector similarity search using Cloudflare AI embeddings
 - 💡 **Token-Aware Injection**: Intelligently inject relevant context while respecting token limits
-- 🔐 **GitHub OAuth Security**: Secure authentication with role-based access control
+- 🔐 **GitHub OAuth Security**: Secure authentication with role-based access control and also sentry integration
 - ☁️ **Cloudflare Native**: Built for Workers runtime with Durable Objects and KV storage
 
 ## Prerequisites
