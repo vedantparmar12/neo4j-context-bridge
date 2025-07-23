@@ -24,7 +24,7 @@ A production-ready Model Context Protocol (MCP) server that uses Neo4j graph dat
 ### 1. Clone and Install Dependencies
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/vedantparmar12/neo4j-context-bridge.git
 cd use-cases/mcp-server
 npm install
 ```
