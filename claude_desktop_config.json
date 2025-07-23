@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "neo4j-context-local": {
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:8793/mcp"],
+      "env": {},
+      "description": "Neo4j Context Manager MCP Server (Local Development)"
+    },
+    "neo4j-context-production": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://your-neo4j-mcp.workers.dev/mcp"],
+      "env": {},
+      "description": "Neo4j Context Manager MCP Server (Production)"
+    }
+  }
+}
