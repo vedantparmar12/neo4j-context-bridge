@@ -31,8 +31,8 @@ wrangler kv namespace list
 ### 3. Update wrangler.jsonc
 
 Update the KV namespace IDs in `wrangler.jsonc`:
-- OAUTH_KV: `4afa711b13744cc19514ae66c9f04760`
-- CONTEXT_KV: `022eb1017898434f8f87b6aaaca2a774`
+- OAUTH_KV: `4afa711b13744cc19514ae66c9f047xx`
+- CONTEXT_KV: `022eb1017898434f8f87b6aaaca2axxx`
 
 ### 4. Set Environment Variables as Secrets
 
@@ -50,7 +50,7 @@ echo "neo4j" | wrangler secret put NEO4J_USER
 echo "nJalMA79b3Cl8y9YY6XaBs28P2B_ZnfdOht2ElC_gBM" | wrangler secret put NEO4J_PASSWORD
 
 # Sentry Monitoring (Optional)
-echo "https://d449571cee439cfde1797cd631400cd0@o4509655809327104.ingest.us.sentry.io/4509688171003904" | wrangler secret put SENTRY_DSN
+echo "https://d449571cee439cfde1797cd631400cd0@xxxxxxxxxx.ingest.us.sentry.io/45096881xxxxxx" | wrangler secret put SENTRY_DSN
 echo "production" | wrangler secret put NODE_ENV
 
 # Context Management Configuration
@@ -127,7 +127,7 @@ Add this to your Claude Desktop configuration:
   "mcpServers": {
     "my-mcp-server": {
       "command": "npx",
-      "args": ["mcp-remote", "https://my-mcp-server.vedantparmarsingh.workers.dev/mcp"],
+      "args": ["mcp-remote", "https://my-mcp-server.yournameincloudflare.workers.dev/mcp"],
       "env": {}
     }
   }
