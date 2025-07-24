@@ -1,300 +1,390 @@
-# Neo4j Context Manager MCP Server
+# Neo4j Context Bridge Documentation
 
-A production-ready Model Context Protocol (MCP) server that uses Neo4j graph database to maintain context across multiple Claude chat sessions. Built with TypeScript on Cloudflare Workers with GitHub OAuth authentication.
+## 🚀 Overview
 
-## Features
+Neo4j Context Bridge is a sophisticated TypeScript/JavaScript library that provides intelligent context management and knowledge graph capabilities using Neo4j database integration. This project bridges the gap between conversational AI systems and persistent knowledge storage through advanced context extraction, relationship detection, and semantic search capabilities.
 
-- 🔗 **Graph-Based Context Storage**: Store chat contexts as nodes with semantic relationships in Neo4j
-- 🤖 **Smart Context Extraction**: Automatically identify and store code blocks, decisions, and requirements
-- 🔍 **Semantic Search**: Vector similarity search using Cloudflare AI embeddings
-- 💡 **Token-Aware Injection**: Intelligently inject relevant context while respecting token limits
-- 🔐 **GitHub OAuth Security**: Secure authentication with role-based access control and also sentry integration
-- ☁️ **Cloudflare Native**: Built for Workers runtime with Durable Objects and KV storage
+### Key Features
 
-## Prerequisites
+- **Knowledge Graph Management**: Build and maintain complex knowledge graphs using Neo4j
+- **Context Extraction**: Intelligent extraction of entities, relationships, and semantic information from conversations
+- **Semantic Search**: Advanced search capabilities with embedding-based similarity matching
+- **OAuth Integration**: Secure authentication with GitHub and other providers
+- **MCP (Model Context Protocol) Support**: Integration with AI model context protocols
+- **Multi-Database Support**: Both PostgreSQL and Neo4j backend options
+- **Cloudflare Workers Compatible**: Designed for serverless deployment
+- **Error Monitoring**: Integrated Sentry support for production monitoring
 
-- Node.js 18+ and npm
-- Cloudflare account with Workers enabled
-- Neo4j Aura account (free tier available)
-- GitHub OAuth App
-- Claude Desktop application
+## 📁 Project Structure
 
-## Quick Start
-
-### 1. Clone and Install Dependencies
-
-```bash
-git clone https://github.com/vedantparmar12/neo4j-context-bridge.git
-cd use-cases/mcp-server
-npm install
+```
+neo4j-context-bridge/
+├── src/
+│   ├── auth/                   # Authentication & OAuth handlers
+│   ├── database/               # Database connections & utilities
+│   ├── embeddings/             # AI embeddings generation
+│   ├── extractors/             # Context & relationship extraction
+│   ├── injection/              # Context injection mechanisms
+│   ├── knowledge-graph/        # Knowledge graph storage & management
+│   ├── neo4j/                  # Neo4j specific implementations
+│   ├── search/                 # Semantic search functionality
+│   ├── tools/                  # MCP tools & API endpoints
+│   ├── types/                  # TypeScript type definitions
+│   └── utils/                  # Utility functions & helpers
+├── examples/                   # Usage examples & demos
+├── tests/                      # Test suites & fixtures
+└── docs/                       # Additional documentation
 ```
 
-### 2. Set Up Neo4j Aura
+## 🔧 Core Components
 
-1. Create a free Neo4j Aura instance at https://console.neo4j.io/
-2. Choose the "Free" tier
-3. Save your connection details:
-   - Connection URI (starts with `neo4j+s://`)
-   - Username (usually `neo4j`)
-   - Password
+### 1. Authentication System (`src/auth/`)
 
-### 3. Create GitHub OAuth App
+**GitHub Handler** (`github-handler.ts`)
+- OAuth flow management for GitHub integration
+- Token validation and refresh mechanisms
+- User profile retrieval and management
 
-1. Go to GitHub Settings > Developer settings > OAuth Apps
-2. Click "New OAuth App"
-3. Fill in:
-   - Application name: `Neo4j Context MCP`
-   - Homepage URL: `http://localhost:8793`
-   - Authorization callback URL: `http://localhost:8793/callback`
-4. Save the Client ID and generate a Client Secret
+**OAuth Utils** (`oauth-utils.ts`)
+- Generic OAuth provider support
+- Secure token storage and validation
+- Multi-provider authentication flows
 
-### 4. Configure Environment Variables
+### 2. Database Layer (`src/database/` & `src/neo4j/`)
 
-Copy the example configuration:
+**Connection Management**
+- Secure database connections with retry logic
+- Connection pooling and optimization
+- Environment-based configuration
 
-```bash
-cp .dev.vars.example .dev.vars
-```
+**Security Features**
+- SQL injection prevention
+- Query sanitization and validation
+- Role-based access control
 
-Edit `.dev.vars` with your credentials:
+### 3. Knowledge Graph Engine (`src/knowledge-graph/`)
+
+**Storage System** (`storage.ts`)
+- Entity and relationship management
+- Graph traversal algorithms
+- Data persistence and retrieval
+- Semantic relationship mapping
+
+### 4. Context Processing (`src/extractors/`)
+
+**Context Extractor** (`context-extractor.ts`)
+- Natural language processing for entity extraction
+- Named entity recognition (NER)
+- Contextual information parsing
+- Multi-format content support
+
+**Relationship Detector** (`relationship-detector.ts`)
+- Automatic relationship discovery between entities
+- Semantic relationship classification
+- Confidence scoring for detected relationships
+- Temporal relationship tracking
+
+### 5. Semantic Search (`src/search/`)
+
+**Semantic Search Engine** (`semantic-search.ts`)
+- Vector-based similarity search
+- Embedding generation and comparison
+- Multi-modal search capabilities
+- Relevance ranking algorithms
+
+### 6. AI Embeddings (`src/embeddings/`)
+
+**Cloudflare AI Integration** (`cloudflare-ai.ts`)
+- Text-to-vector embedding generation
+- Multiple embedding model support
+- Batch processing capabilities
+- Caching mechanisms for performance
+
+### 7. MCP Tools (`src/tools/`)
+
+The project provides extensive MCP (Model Context Protocol) tools:
+
+- **Context Tools**: Manage conversational context and history
+- **Database Tools**: Direct database query and management interfaces
+- **Extraction Tools**: Extract entities and relationships from text
+- **Injection Tools**: Inject context into conversations
+- **Knowledge Graph Tools**: Manipulate and query the knowledge graph
+- **Management Tools**: Administrative and maintenance operations
+- **Neo4j Tools**: Specialized Neo4j database operations
+- **Search Tools**: Semantic and traditional search capabilities
+
+## 🛠 Installation & Setup
+
+### Prerequisites
+
+- Node.js 18+ or compatible runtime
+- Neo4j database instance
+- PostgreSQL database (optional)
+- Cloudflare account (for deployment)
+
+### Environment Configuration
+
+Create a `.env` file with the following variables:
 
 ```env
-# GitHub OAuth
+# Database Configuration
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your_password
+
+POSTGRES_URL=postgresql://user:password@localhost:5432/dbname
+
+# Authentication
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
-COOKIE_ENCRYPTION_KEY=generate_a_random_32_char_string
 
-# Neo4j Configuration
-NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=your_neo4j_password
+# AI Services
+OPENAI_API_KEY=your_openai_key
+CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account
+CLOUDFLARE_API_TOKEN=your_cloudflare_token
 
-# Context Management
-MAX_CONTEXT_TOKENS=4000
-MAX_INJECTION_TOKENS=2000
+# Monitoring
+SENTRY_DSN=your_sentry_dsn
 ```
 
-### 5. Run the Development Server
+### Installation
 
 ```bash
-# Using the Neo4j-specific configuration
-wrangler dev --config wrangler-neo4j.jsonc
+# Clone the repository
+git clone https://github.com/vedantparmar12/neo4j-context-bridge.git
+cd neo4j-context-bridge
 
-# Or using npm script (if configured)
-npm run dev:neo4j
-```
+# Install dependencies
+npm install
 
-The server will start at `http://localhost:8793`
+# Build the project
+npm run build
 
-### 6. Configure Claude Desktop
-
-#### Option A: Manual Configuration
-
-1. Open Claude Desktop settings
-2. Go to Developer > MCP Servers
-3. Add the configuration from `claude_desktop_config.json`
-
-#### Option B: Direct File Edit
-
-On Windows, edit:
-```
-%APPDATA%\Claude\claude_desktop_config.json
-```
-
-On macOS:
-```
-~/Library/Application Support/Claude/claude_desktop_config.json
-```
-
-Add this configuration:
-
-```json
-{
-  "mcpServers": {
-    "neo4j-context": {
-      "command": "npx",
-      "args": ["mcp-remote", "http://localhost:8793/mcp"],
-      "env": {}
-    }
-  }
-}
-```
-
-### 7. Authenticate
-
-1. Restart Claude Desktop
-2. When you first use a Neo4j context tool, you'll be prompted to authenticate
-3. Click the authentication link to authorize with GitHub
-4. Once authorized, the MCP tools will be available
-
-## Available MCP Tools
-
-### Context Extraction
-- **`extract_context`** - Extract important contexts from the current chat
-- **`extract_from_export`** - Import contexts from an exported chat JSON file
-
-### Search & Retrieval
-- **`search_context`** - Search for relevant contexts using keywords or semantic search
-- **`find_related`** - Find contexts related to a specific context
-- **`get_evolution`** - Track how a context has evolved across chats
-- **`get_chat_context`** - Retrieve all contexts from a specific chat
-
-### Context Management
-- **`inject_context`** - Inject relevant historical context into the current chat
-- **`list_chats`** - List all chats in a project with summaries
-- **`visualize_graph`** - Generate a visualization of the context graph
-- **`manage_relationships`** - Create/update/delete relationships between contexts
-
-## Usage Examples
-
-### Extract Context from Current Chat
-```
-Use the extract_context tool to save important parts of this conversation
-```
-
-### Search for Past Contexts
-```
-Search for previous discussions about "authentication" using the search_context tool
-```
-
-### Inject Relevant Context
-```
-Find and inject any previous context about "database schema design" into this chat
-```
-
-### Visualize Knowledge Graph
-```
-Show me a visualization of how our discussions about "API design" have evolved
-```
-
-## Production Deployment
-
-### 1. Set Production Secrets
-
-```bash
-wrangler secret put GITHUB_CLIENT_ID
-wrangler secret put GITHUB_CLIENT_SECRET
-wrangler secret put COOKIE_ENCRYPTION_KEY
-wrangler secret put NEO4J_URI
-wrangler secret put NEO4J_USER
-wrangler secret put NEO4J_PASSWORD
-```
-
-### 2. Create KV Namespaces
-
-```bash
-# Create OAuth KV namespace
-wrangler kv:namespace create "OAUTH_KV"
-
-# Create Context KV namespace
-wrangler kv:namespace create "CONTEXT_KV"
-```
-
-Update `wrangler-neo4j.jsonc` with the generated IDs.
-
-### 3. Deploy to Cloudflare
-
-```bash
-wrangler deploy --config wrangler-neo4j.jsonc
-```
-
-### 4. Update Claude Configuration
-
-Update the production URL in Claude Desktop:
-
-```json
-{
-  "mcpServers": {
-    "neo4j-context": {
-      "command": "npx",
-      "args": ["mcp-remote", "https://your-neo4j-mcp.workers.dev/mcp"],
-      "env": {}
-    }
-  }
-}
-```
-
-## Architecture
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Claude Desktop │────▶│  MCP Server      │────▶│  Neo4j Aura     │
-│                 │     │  (CF Workers)    │     │  (Graph DB)     │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                               │                           │
-                               ▼                           ▼
-                        ┌──────────────────┐     ┌─────────────────┐
-                        │  Cloudflare KV   │     │  Vector Index   │
-                        │  (Embeddings)    │     │  (Semantic)     │
-                        └──────────────────┘     └─────────────────┘
-```
-
-## Security Considerations
-
-- **Authentication**: GitHub OAuth with signed cookies
-- **Authorization**: Role-based access control
-- **Query Validation**: Cypher injection protection
-- **Error Handling**: Sanitized error messages
-- **Token Management**: Strict token budget enforcement
-
-## Troubleshooting
-
-### Neo4j Connection Issues
-- Verify your Neo4j Aura instance is running
-- Check connection URI includes `+s` for SSL
-- Ensure IP allowlist includes Cloudflare Workers
-
-### Authentication Problems
-- Clear cookies and re-authenticate
-- Verify GitHub OAuth callback URL matches configuration
-- Check COOKIE_ENCRYPTION_KEY is consistent
-
-### Tool Errors
-- Check Claude Desktop console for detailed errors
-- Verify all environment variables are set
-- Ensure Neo4j indexes are created (automatic on first run)
-
-### Performance Issues
-- Monitor token usage in responses
-- Adjust MAX_CONTEXT_TOKENS for memory limits
-- Use semantic search for large datasets
-
-## Development
-
-### Running Tests
-```bash
+# Run tests
 npm test
 ```
 
-### Type Checking
-```bash
-npm run type-check
+## 🚀 Usage Examples
+
+### Basic Knowledge Graph Operations
+
+```typescript
+import { KnowledgeGraphStorage } from './src/knowledge-graph/storage';
+import { ContextExtractor } from './src/extractors/context-extractor';
+
+// Initialize storage
+const storage = new KnowledgeGraphStorage({
+  neo4jUri: process.env.NEO4J_URI,
+  neo4jUsername: process.env.NEO4J_USERNAME,
+  neo4jPassword: process.env.NEO4J_PASSWORD
+});
+
+// Extract context from text
+const extractor = new ContextExtractor();
+const context = await extractor.extractContext("John works at OpenAI and lives in San Francisco");
+
+// Store in knowledge graph
+await storage.storeContext(context);
 ```
 
-### Local Neo4j Setup (Optional)
-For local development, you can use Neo4j Desktop instead of Aura:
-1. Download Neo4j Desktop
-2. Create a local database
-3. Update NEO4J_URI to `bolt://localhost:7687`
+### Semantic Search
 
-## Contributing
+```typescript
+import { SemanticSearch } from './src/search/semantic-search';
+
+const search = new SemanticSearch({
+  embeddingProvider: 'cloudflare',
+  storage: storage
+});
+
+// Perform semantic search
+const results = await search.search("AI companies in San Francisco", {
+  limit: 10,
+  threshold: 0.8
+});
+```
+
+### MCP Integration
+
+```typescript
+import { registerNeo4jTools } from './src/tools/register-neo4j-tools';
+
+// Register all Neo4j tools with MCP
+await registerNeo4jTools({
+  neo4jConnection: connectionConfig,
+  enableSentry: true
+});
+```
+
+## 🔍 API Reference
+
+### Core Classes
+
+#### `KnowledgeGraphStorage`
+Main interface for knowledge graph operations.
+
+**Methods:**
+- `storeEntity(entity: Entity)`: Store an entity in the graph
+- `storeRelationship(rel: Relationship)`: Store a relationship
+- `findEntities(query: string)`: Search for entities
+- `getConnections(entityId: string)`: Get entity connections
+
+#### `ContextExtractor`
+Extracts structured information from unstructured text.
+
+**Methods:**
+- `extractContext(text: string)`: Extract entities and relationships
+- `extractEntities(text: string)`: Extract named entities only
+- `extractRelationships(text: string)`: Extract relationships only
+
+#### `SemanticSearch`
+Provides semantic search capabilities.
+
+**Methods:**
+- `search(query: string, options?)`: Perform semantic search
+- `indexDocument(doc: Document)`: Index a document for search
+- `generateEmbedding(text: string)`: Generate text embeddings
+
+### MCP Tools
+
+The project provides the following MCP tools:
+
+- `store_context`: Store conversational context
+- `retrieve_context`: Retrieve relevant context
+- `extract_entities`: Extract entities from text
+- `find_relationships`: Discover relationships
+- `semantic_search`: Perform semantic searches
+- `manage_knowledge_graph`: Administrative operations
+
+## 🧪 Testing
+
+The project includes comprehensive test suites:
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test suites
+npm run test:unit
+npm run test:integration
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Test Structure
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **Fixtures**: Reusable test data and configurations
+- **Mocks**: Mock implementations for external services
+
+## 🚀 Deployment
+
+### Cloudflare Workers
+
+```bash
+# Deploy to Cloudflare Workers
+npm run deploy
+
+# Deploy with specific environment
+npm run deploy:production
+```
+
+### Docker Deployment
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## 📊 Performance Considerations
+
+### Optimization Strategies
+
+1. **Connection Pooling**: Efficient database connection management
+2. **Caching**: Redis-based caching for frequently accessed data
+3. **Batch Processing**: Bulk operations for large datasets
+4. **Lazy Loading**: On-demand resource loading
+5. **Compression**: Response compression for API endpoints
+
+### Monitoring
+
+- **Sentry Integration**: Error tracking and performance monitoring
+- **Custom Metrics**: Business logic monitoring
+- **Health Checks**: System health monitoring endpoints
+
+## 🤝 Contributing
+
+### Development Workflow
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and add tests
+4. Ensure all tests pass: `npm test`
+5. Commit your changes: `git commit -m 'Add amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
 
-## License
+### Code Standards
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- **TypeScript**: Strict type checking enabled
+- **ESLint**: Code linting and formatting
+- **Prettier**: Code formatting
+- **Conventional Commits**: Commit message standards
 
-## Support
+## 📋 Dependencies
 
-- GitHub Issues: [Report bugs or request features]
-- Documentation: [MCP Protocol Docs](https://modelcontextprotocol.io)
-- Neo4j Support: [Neo4j Community](https://community.neo4j.com)
+### Production Dependencies
+
+- **@modelcontextprotocol/sdk**: MCP protocol implementation
+- **neo4j-driver**: Neo4j database driver
+- **@xenova/transformers**: AI/ML transformers for embeddings
+- **hono**: Lightweight web framework
+- **zod**: Runtime type validation
+- **tiktoken**: Token counting and text processing
+
+### Development Dependencies
+
+- **vitest**: Testing framework
+- **typescript**: TypeScript compiler
+- **@types/node**: Node.js type definitions
+- **prettier**: Code formatting
+- **@sentry/cloudflare**: Error monitoring
+
+## 📖 Additional Resources
+
+### Documentation
+
+- [Neo4j Implementation Status](./NEO4J_IMPLEMENTATION_STATUS.md)
+- [Implementation Summary](./IMPLEMENTATION_SUMMARY.md)
+- [Deployment Guide](./deployment.md)
+- [Knowledge Graph README](./README_KG.md)
+
+### External Resources
+
+- [Neo4j Documentation](https://neo4j.com/docs/)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Cloudflare Workers](https://workers.cloudflare.com/)
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+
+- Open an issue on [GitHub](https://github.com/vedantparmar12/neo4j-context-bridge/issues)
+- Check the [documentation](./docs/)
+- Review existing issues and discussions
 
 ---
 
-Built with ❤️ using Model Context Protocol, Neo4j, and Cloudflare Workers
+**Built with ❤️ by the Neo4j Context Bridge team**
