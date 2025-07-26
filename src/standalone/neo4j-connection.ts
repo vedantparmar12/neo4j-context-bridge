@@ -3,16 +3,14 @@ import { StandaloneEnv } from './types.js';
 
 let driver: Driver | null = null;
 
-/**
- * Get or create Neo4j driver instance
- */
+
 export function getDriver(env: StandaloneEnv): Driver {
   if (!driver) {
     driver = neo4j.driver(
       env.NEO4J_URI,
       neo4j.auth.basic(env.NEO4J_USER, env.NEO4J_PASSWORD),
       {
-        maxConnectionLifetime: 3 * 60 * 60 * 1000, // 3 hours
+        maxConnectionLifetime: 3 * 60 * 60 * 1000, 
         maxConnectionPoolSize: 50,
         connectionAcquisitionTimeout: 2 * 60 * 1000, // 120 seconds
         disableLosslessIntegers: true,
@@ -22,9 +20,7 @@ export function getDriver(env: StandaloneEnv): Driver {
   return driver;
 }
 
-/**
- * Execute a Neo4j operation with proper session management
- */
+
 export async function withNeo4j<T>(
   env: StandaloneEnv,
   operation: (session: Session) => Promise<T>
@@ -53,9 +49,7 @@ export async function closeDriver(): Promise<void> {
   }
 }
 
-/**
- * Test Neo4j connection
- */
+
 export async function testNeo4jConnection(env: StandaloneEnv): Promise<boolean> {
   try {
     await withNeo4j(env, async (session) => {
