@@ -10,6 +10,32 @@ A Model Context Protocol (MCP) server that provides persistent conversation memo
 - 📊 **Search & Retrieval**: Find past conversations, code, and knowledge
 - 🚀 **Easy Integration**: Works seamlessly with Claude Desktop and other MCP-compatible clients
 
+## 🏗️ Architecture
+
+### Core Components
+
+```
+neo4j-context-bridge/
+├── src/
+│   ├── standalone-server.ts          # Main MCP server entry point
+│   └── standalone/
+│       ├── knowledge-graph-storage.ts # Core knowledge graph operations
+│       ├── neo4j-connection.ts       # Database connection management
+│       ├── register-tools.ts         # MCP tool registration & handlers
+│       └── types.ts                 # TypeScript type definitions
+├── CONVERSATION_MEMORY_GUIDE.md     # Memory management documentation
+├── CONVERSATION_STORAGE_GUIDE.md    # Storage architecture guide
+├── claude_desktop_config.json       # Claude Desktop configuration
+└── WORKING.md                      # Development notes and workflows
+```
+### Technology Stack
+
+- **Database**: Neo4j Graph Database
+- **Runtime**: Node.js with TypeScript
+- **Protocol**: Model Context Protocol (MCP)
+- **Validation**: Zod schema validation
+- **Driver**: Neo4j JavaScript Driver
+
 ## Prerequisites
 
 - Node.js 18+ 
@@ -46,14 +72,20 @@ Follow these steps for each interaction:
      b) Connect them to the current entities using relations
      c) Store facts about them as observations
 
+5. Data Operations
+- **CRUD Operations**: Complete Create, Read, Update, Delete functionality
+- **Graph Queries**: Advanced Cypher query support
+- **Batch Processing**: Efficient bulk operations
+- **Schema Validation**: Type-safe data operations with Zod
+
 ```
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/neo4j-mcp.git
-cd neo4j-mcp
+git clone https://github.com/vedantparmar12/neo4j-context-bridge.git
+cd neo4j-context-bridge
 ```
 
 2. Install dependencies:
@@ -177,36 +209,237 @@ The MCP server automatically:
 3. Creates a knowledge graph of entities and relationships
 4. Stores everything in Neo4j for permanent access
 
-## Development
+## 📋 API Reference
 
-### Project Structure
+### Entity Operations
 
+#### Create Entity
+```typescript
+interface CreateEntityParams {
+  type: string;
+  properties: Record<string, any>;
+  labels?: string[];
+}
 ```
-src/
-├── standalone-server.ts       # Main server entry point
-└── standalone/
-    ├── types.ts              # TypeScript types and schemas
-    ├── neo4j-connection.ts   # Neo4j connection management
-    ├── knowledge-graph-storage.ts  # Graph operations
-    └── register-tools.ts     # MCP tool registration
+
+#### Retrieve Entity
+```typescript
+interface RetrieveEntityParams {
+  id?: string;
+  type?: string;
+  properties?: Record<string, any>;
+}
 ```
 
-### Running in Development
+### Relationship Operations
 
+#### Create Relationship
+```typescript
+interface CreateRelationshipParams {
+  fromEntityId: string;
+  toEntityId: string;
+  type: string;
+  properties?: Record<string, any>;
+}
+```
+
+### Query Operations
+
+#### Execute Cypher Query
+```typescript
+interface CypherQueryParams {
+  query: string;
+  parameters?: Record<string, any>;
+}
+```
+
+## 🔧 Usage Examples
+
+### Basic Entity Creation
+```typescript
+// Create a person entity
+const person = await createEntity({
+  type: "Person",
+  properties: {
+    name: "John Doe",
+    age: 30,
+    email: "john@example.com"
+  },
+  labels: ["User", "Person"]
+});
+```
+
+### Creating Relationships
+```typescript
+// Connect two entities
+await createRelationship({
+  fromEntityId: personId,
+  toEntityId: companyId,
+  type: "WORKS_FOR",
+  properties: {
+    since: "2023-01-01",
+    role: "Developer"
+  }
+});
+```
+
+### Querying the Graph
+```typescript
+// Find all connections for a person
+const connections = await executeCypherQuery({
+  query: `
+    MATCH (p:Person {name: $name})-[r]->(connected)
+    RETURN p, r, connected
+  `,
+  parameters: { name: "John Doe" }
+});
+```
+
+## 🧠 Memory Management
+
+### Conversation Context
+The system maintains conversation context through:
+- **Session Tracking**: Unique session identifiers
+- **Temporal Relationships**: Time-based entity connections
+- **Context Graphs**: Hierarchical context structures
+
+### Memory Retrieval Strategies
+1. **Recency-based**: Recent interactions prioritized
+2. **Relevance-based**: Semantic similarity matching
+3. **Relationship-based**: Connected entity traversal
+
+## 🚀 Deployment
+
+### Standalone Deployment
 ```bash
-npm run dev
-```
-
-### Building
-
-```bash
+# Production build
 npm run build
+
+# Start server
+NODE_ENV=production npm start
 ```
 
-## License
+### Docker Deployment
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
 
-MIT
+### Cloud Deployment Options
+- **AWS**: EC2, ECS, or Lambda
+- **Google Cloud**: Cloud Run, GKE
+- **Azure**: Container Instances, AKS
+- **Railway**: Direct Git deployment
 
-## Contributing
+## 🧪 Development
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Development Setup
+```bash
+# Install development dependencies
+npm install
+
+# Start in development mode
+npm run dev
+
+# Run tests
+npm test
+
+# Type checking
+npm run type-check
+```
+
+### Code Structure Guidelines
+- **Modular Design**: Separate concerns across modules
+- **Type Safety**: Comprehensive TypeScript usage
+- **Error Handling**: Robust error boundaries
+- **Testing**: Unit and integration test coverage
+
+## 📊 Monitoring & Debugging
+
+### Logging
+The system provides comprehensive logging for:
+- Connection events
+- Query execution
+- Error tracking
+- Performance metrics
+
+### Health Checks
+- Database connectivity
+- MCP server status
+- Memory usage monitoring
+- Query performance tracking
+
+## 🔒 Security Considerations
+
+### Database Security
+- Encrypted connections (TLS/SSL)
+- Authentication and authorization
+- Query parameter sanitization
+- Rate limiting and throttling
+
+### Data Privacy
+- PII handling protocols
+- Data retention policies
+- Access control mechanisms
+- Audit trail maintenance
+
+## 🤝 Contributing
+
+### Development Workflow
+1. Fork the repository
+2. Create feature branch
+3. Implement changes with tests
+4. Submit pull request
+
+### Code Standards
+- TypeScript strict mode
+- ESLint/Prettier formatting
+- Comprehensive JSDoc comments
+- Test coverage requirements
+
+## 📄 License
+
+This project is open source. Please refer to the LICENSE file for specific terms and conditions.
+
+## 🆘 Support & Troubleshooting
+
+### Common Issues
+
+#### Connection Failures
+- Verify Neo4j server status
+- Check connection credentials
+- Confirm network accessibility
+
+#### Memory Issues
+- Monitor heap usage
+- Optimize query patterns
+- Implement connection pooling
+
+#### Performance Problems
+- Index optimization
+- Query profiling
+- Caching strategies
+
+### Getting Help
+- GitHub Issues: Bug reports and feature requests
+- Discussions: General questions and usage help
+- Documentation: Comprehensive guides and references
+
+## 🔄 Changelog
+
+### Version History
+- **v1.0.0**: Initial release with core functionality
+- **v1.1.0**: Enhanced MCP integration
+- **v1.2.0**: Performance optimizations
+- **v2.0.0**: Major architecture updates
+
+---
+
+**Maintained by**: Vedant Parmar  
+**Repository**: [github.com/vedantparmar12/neo4j-context-bridge](https://github.com/vedantparmar12/neo4j-context-bridge)  
