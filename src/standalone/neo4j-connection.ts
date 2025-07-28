@@ -39,9 +39,7 @@ export async function withNeo4j<T>(
   }
 }
 
-/**
- * Close the driver connection
- */
+/** Close the driver connection */
 export async function closeDriver(): Promise<void> {
   if (driver) {
     await driver.close();
