@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Environment configuration
 export interface StandaloneEnv {
   NEO4J_URI: string;
   NEO4J_USER: string;
@@ -9,7 +8,6 @@ export interface StandaloneEnv {
   MAX_INJECTION_TOKENS?: string;
 }
 
-// Tool response helpers
 export function createSuccessResponse(message: string, data?: any) {
   return {
     content: [
@@ -33,7 +31,6 @@ export function createErrorResponse(error: string) {
   };
 }
 
-// Knowledge Graph Types
 export interface Entity {
   name: string;
   entityType: string;
@@ -46,7 +43,6 @@ export interface Relation {
   relationType: string;
 }
 
-// Zod Schemas for Knowledge Graph Tools
 export const CreateEntitiesSchema = z.object({
   entities: z.array(z.object({
     name: z.string().describe("Unique name identifier for the entity"),
@@ -105,7 +101,6 @@ export const ExecuteCypherSchema = z.object({
 
 export const ShowSchemaSchema = z.object({});
 
-// Conversation Memory Schema
 export const ConversationMemorySchema = z.object({
   user: z.string().default("default_user"),
   action: z.enum(["remember", "store", "identify", "store_message", "store_code", "get_history"]),
@@ -132,7 +127,6 @@ export const ConversationMemorySchema = z.object({
   }).optional()
 });
 
-// Store Conversation Schema
 export const StoreConversationSchema = z.object({
   user: z.string().default("default_user"),
   messages: z.array(z.object({
@@ -143,7 +137,6 @@ export const StoreConversationSchema = z.object({
   }))
 });
 
-// Store Code Schema
 export const StoreCodeSchema = z.object({
   user: z.string().default("default_user"),
   code: z.object({
