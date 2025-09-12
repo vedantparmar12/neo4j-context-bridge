@@ -25,3 +25,20 @@ npm-debug.log*
 coverage/
 .nyc_output/
 .claude
+
+# Light RAG specific
+.ollama/
+models/
+embeddings_cache/
+*.embedding
+test-config.js
+lightrag_data/
+vector_cache/
+
+# Cloudflare Workers
+.wrangler/
+worker-configuration.d.ts
+
+# Deployment
+secrets.txt
+deploy.log
