@@ -1,8 +1,16 @@
 import { withNeo4j } from './neo4j-connection.js';
 import { Entity, Relation, StandaloneEnv } from './types.js';
+import { CypherValidator } from './cypher-validator.js';
+import { LightRAGStorage } from './light-rag-storage.js';
 
 export class KnowledgeGraphStorage {
-  constructor(private env: StandaloneEnv) {}
+  private lightRag: LightRAGStorage | null = null;
+  
+  constructor(private env: StandaloneEnv) {
+    if (this.env.LIGHTRAG_ENABLED) {
+      this.lightRag = new LightRAGStorage(env);
+    }
+  }
 
   async createEntities(entities: Entity[]): Promise<Entity[]> {
     return withNeo4j(this.env, async (session) => {
@@ -282,7 +290,19 @@ export class KnowledgeGraphStorage {
         { user, messageId, role, content, timestamp, hasCode }
       );
       
-      return result.records[0].get('messageId');
+      const storedMessageId = result.records[0].get('messageId');
+      
+      // Light RAG auto-processing if enabled
+      if (this.lightRag && this.env.LIGHTRAG_AUTO_EXTRACTION) {
+        try {
+          await this.lightRag.processConversationForAutoExtraction(user, [{ role, content }]);
+        } catch (error) {
+          console.warn('Light RAG auto-processing failed for message:', error);
+          // Don't fail the main operation if Light RAG processing fails
+        }
+      }
+      
+      return storedMessageId;
     });
   }
 

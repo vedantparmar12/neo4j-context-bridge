@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "neo4j-lightrag-cloudflare": {
+      "command": "curl",
+      "args": [
+        "-X", "POST",
+        "-H", "Content-Type: application/json",
+        "-H", "Authorization: Bearer your-mcp-api-key-here",
+        "--data-binary", "@-",
+        "https://neo4j-lightrag-mcp.your-domain.workers.dev"
+      ],
+      "env": {
+        "CLOUDFLARE_WORKER_URL": "https://neo4j-lightrag-mcp.your-domain.workers.dev",
+        "MCP_API_KEY": "your-mcp-api-key-here"
+      }
+    }
+  },
+  "serverDefaults": {
+    "neo4j-lightrag-cloudflare": {
+      "timeout": 30000,
+      "retries": 3,
+      "healthCheck": {
+        "enabled": true,
+        "url": "https://neo4j-lightrag-mcp.your-domain.workers.dev/health",
+        "interval": 60000
+      }
+    }
+  },
+  "globalShortcut": {
+    "neo4j-query": {
+      "key": "Ctrl+Shift+N",
+      "description": "Query Neo4j Light RAG via Cloudflare"
+    }
+  },
+  "cloudflare": {
+    "enabled": true,
+    "regions": ["auto"],
+    "caching": {
+      "enabled": true,
+      "ttl": 300
+    },
+    "analytics": {
+      "enabled": true,
+      "track_requests": true,
+      "track_errors": true
+    }
+  }
+}

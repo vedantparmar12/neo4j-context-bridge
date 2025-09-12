@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "neo4j-lightrag": {
+      "command": "node",
+      "args": ["C:\\Users\\vedan\\Desktop\\mcp-rag\\Neo4j-mcp\\dist\\standalone-server.js"],
+      "env": {
+        "NEO4J_URI": "neo4j://localhost:7687",
+        "NEO4J_USER": "neo4j",
+        "NEO4J_PASSWORD": "neo4j123",
+        "NEO4J_DATABASE": "neo4j",
+        "NEO4J_ENCRYPTED": "false",
+        "NEO4J_TRUST": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
+        
+        "NEO4J_MAX_CONNECTION_LIFETIME": "3600000",
+        "NEO4J_MAX_CONNECTION_POOL_SIZE": "50",
+        "NEO4J_CONNECTION_ACQUISITION_TIMEOUT": "120000",
+        "NEO4J_CONNECTION_TIMEOUT": "30000",
+        "NEO4J_MAX_TRANSACTION_RETRY_TIME": "30000",
+        
+        "MAX_CONTEXT_TOKENS": "2000",
+        "MAX_INJECTION_TOKENS": "1000",
+        
+        "MCP_API_KEY_REQUIRED": "false",
+        "LOG_LEVEL": "info",
+        "NODE_ENV": "development",
+        
+        "CACHE_ENABLED": "true",
+        "CACHE_TTL": "300000",
+        "CACHE_MAX_SIZE": "100",
+        
+        "RATE_LIMIT_ENABLED": "true",
+        "RATE_LIMIT_MAX_REQUESTS": "100",
+        "RATE_LIMIT_WINDOW_MS": "60000",
+        
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "OLLAMA_MODEL": "llama3.2:latest",
+        "OLLAMA_EMBEDDING_MODEL": "nomic-embed-text:latest",
+        "OLLAMA_TIMEOUT": "60000",
+        
+        "LIGHTRAG_ENABLED": "true",
+        "LIGHTRAG_AUTO_EXTRACTION": "true",
+        "LIGHTRAG_MAX_ENTITIES_PER_EXTRACTION": "50",
+        "LIGHTRAG_MAX_RELATIONS_PER_EXTRACTION": "100",
+        "LIGHTRAG_EMBEDDING_DIMENSION": "768",
+        "LIGHTRAG_SIMILARITY_THRESHOLD": "0.7",
+        "LIGHTRAG_MAX_HOPS": "3",
+        "LIGHTRAG_MIN_RELATION_STRENGTH": "0.1"
+      }
+    }
+  },
+  "globalShortcut": {
+    "neo4j-query": {
+      "key": "Ctrl+Shift+N",
+      "description": "Quick Neo4j Light RAG query"
+    }
+  }
+}

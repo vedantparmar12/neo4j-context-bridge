@@ -24,9 +24,13 @@ import {
 } from './types.js';
 import { KnowledgeGraphStorage } from './knowledge-graph-storage.js';
 import { withNeo4j } from './neo4j-connection.js';
+import { CypherValidator } from './cypher-validator.js';
+import { Config } from './config.js';
+import { createLightRAGTools } from './light-rag-tools.js';
 
 export function registerAllTools(server: Server, env: StandaloneEnv) {
   const storage = new KnowledgeGraphStorage(env);
+  const lightRagTools = createLightRAGTools(env);
 
   // Knowledge Graph Tools
   
@@ -293,6 +297,33 @@ export function registerAllTools(server: Server, env: StandaloneEnv) {
             },
             required: ["code"]
           }
+        },
+
+        // Light RAG Tools
+        {
+          name: "lightrag_query",
+          description: "Query the knowledge graph using Light RAG dual-level retrieval with automatic entity extraction and subgraph analysis",
+          inputSchema: lightRagTools.lightrag_query.inputSchema
+        },
+        {
+          name: "lightrag_extract",
+          description: "Extract entities and relationships from text using Ollama LLM and optionally store them in the knowledge graph",
+          inputSchema: lightRagTools.lightrag_extract.inputSchema
+        },
+        {
+          name: "lightrag_analyze",
+          description: "Analyze specific entities using multi-hop subgraph analysis to understand relationships and context",
+          inputSchema: lightRagTools.lightrag_analyze.inputSchema
+        },
+        {
+          name: "lightrag_health",
+          description: "Check Light RAG system health including Ollama connectivity and embedding capabilities",
+          inputSchema: lightRagTools.lightrag_health.inputSchema
+        },
+        {
+          name: "lightrag_auto_process",
+          description: "Automatically process conversation messages for entity extraction and knowledge graph updates",
+          inputSchema: lightRagTools.lightrag_auto_process.inputSchema
         }
       ]
     };
@@ -401,8 +432,23 @@ export function registerAllTools(server: Server, env: StandaloneEnv) {
 
         case "execute_cypher": {
           const validated = ExecuteCypherSchema.parse(args);
+          
+          // Validate and sanitize the Cypher query
+          const validation = CypherValidator.validateQuery(validated.query, true);
+          if (!validation.valid) {
+            return createErrorResponse(`Query validation failed: ${validation.error}`);
+          }
+          
+          // Sanitize parameters if provided
+          const sanitizedParams = validated.parameters 
+            ? CypherValidator.sanitizeParameters(validated.parameters)
+            : {};
+          
           const result = await withNeo4j(env, async (session) => {
-            const queryResult = await session.run(validated.query, validated.parameters || {});
+            const queryResult = await session.run(
+              validation.sanitized || validated.query, 
+              sanitizedParams
+            );
             return {
               records: queryResult.records.map(record => record.toObject()),
               summary: {
@@ -625,6 +671,22 @@ export function registerAllTools(server: Server, env: StandaloneEnv) {
             }
           );
         }
+
+        // Light RAG Tool Handlers
+        case "lightrag_query":
+          return await lightRagTools.lightrag_query.handler(args);
+        
+        case "lightrag_extract":
+          return await lightRagTools.lightrag_extract.handler(args);
+        
+        case "lightrag_analyze":
+          return await lightRagTools.lightrag_analyze.handler(args);
+        
+        case "lightrag_health":
+          return await lightRagTools.lightrag_health.handler(args);
+        
+        case "lightrag_auto_process":
+          return await lightRagTools.lightrag_auto_process.handler(args);
 
         default:
           return createErrorResponse(`Unknown tool: ${name}`);
