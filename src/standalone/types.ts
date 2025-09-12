@@ -1,13 +1,8 @@
 import { z } from "zod";
+import { Config } from './config.js';
 
-// Environment configuration
-export interface StandaloneEnv {
-  NEO4J_URI: string;
-  NEO4J_USER: string;
-  NEO4J_PASSWORD: string;
-  MAX_CONTEXT_TOKENS?: string;
-  MAX_INJECTION_TOKENS?: string;
-}
+// Re-export Config type for backwards compatibility
+export type StandaloneEnv = Config;
 
 // Tool response helpers
 export function createSuccessResponse(message: string, data?: any) {
@@ -154,4 +149,60 @@ export const StoreCodeSchema = z.object({
     context: z.string().optional()
   }),
   relatedTo: z.array(z.string()).optional()
+});
+
+// Light RAG Enhanced Types
+export interface LightRAGEntity extends Entity {
+  embedding?: number[];
+  importance_score?: number;
+  creation_context?: string;
+  keywords?: string[];
+}
+
+export interface LightRAGRelation extends Relation {
+  strength_score: number;
+  description: string;
+  keywords: string[];
+}
+
+export interface QueryContext {
+  low_level_keywords: string[];
+  high_level_keywords: string[];
+  query_embedding: number[];
+}
+
+export interface RetrievalResult {
+  entities: LightRAGEntity[];
+  relations: LightRAGRelation[];
+  relevance_scores: Record<string, number>;
+  subgraphs: Array<{
+    entities: LightRAGEntity[];
+    relations: LightRAGRelation[];
+    score: number;
+  }>;
+}
+
+// Light RAG Tool Schemas
+export const LightRAGQuerySchema = z.object({
+  query: z.string().describe("Natural language query for Light RAG retrieval"),
+  max_results: z.number().optional().default(20).describe("Maximum number of results to return"),
+  include_subgraphs: z.boolean().optional().default(true).describe("Include subgraph analysis"),
+  similarity_threshold: z.number().optional().describe("Override default similarity threshold")
+});
+
+export const LightRAGExtractSchema = z.object({
+  text: z.string().describe("Text to extract entities and relations from"),
+  user: z.string().default("default_user").describe("User context for extraction"),
+  auto_store: z.boolean().optional().default(true).describe("Automatically store extracted entities")
+});
+
+export const LightRAGAnalyzeSchema = z.object({
+  entity_names: z.array(z.string()).describe("Entity names to analyze"),
+  max_hops: z.number().optional().default(3).describe("Maximum relationship hops for analysis"),
+  include_context: z.boolean().optional().default(true).describe("Include creation context")
+});
+
+export const LightRAGHealthSchema = z.object({
+  check_ollama: z.boolean().optional().default(true).describe("Check Ollama service health"),
+  check_embeddings: z.boolean().optional().default(true).describe("Check embedding capabilities")
 });

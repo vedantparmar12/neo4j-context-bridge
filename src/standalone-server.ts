@@ -3,15 +3,9 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerAllTools } from "./standalone/register-tools.js";
-
-// Environment configuration
-const env = {
-  NEO4J_URI: process.env.NEO4J_URI || "neo4j://127.0.0.1:7687",
-  NEO4J_USER: process.env.NEO4J_USER || "neo4j",
-  NEO4J_PASSWORD: process.env.NEO4J_PASSWORD || "vedant1234",
-  MAX_CONTEXT_TOKENS: process.env.MAX_CONTEXT_TOKENS || "2000",
-  MAX_INJECTION_TOKENS: process.env.MAX_INJECTION_TOKENS || "1000",
-};
+import { configManager } from "./standalone/config.js";
+import { wrapWithAuth } from "./standalone/auth-middleware.js";
+import { testNeo4jConnection } from "./standalone/neo4j-connection.js";
 
 // Create MCP server
 const server = new Server(
@@ -25,16 +19,6 @@ const server = new Server(
     },
   }
 );
-
-// Register all tools
-console.error("Registering tools...");
-try {
-  registerAllTools(server, env);
-  console.error("All tools registered successfully");
-} catch (error) {
-  console.error("Error registering tools:", error);
-  throw error;
-}
 
 // Error handling
 server.onerror = (error) => {
@@ -53,11 +37,35 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Start the server
 async function main() {
-  console.error("Starting Neo4j MCP Standalone Server...");
-  console.error(`Neo4j URI: ${env.NEO4J_URI}`);
-  console.error(`Neo4j User: ${env.NEO4J_USER}`);
-  
   try {
+    // Load and validate configuration
+    const config = configManager.loadConfig();
+    
+    console.error("Starting Neo4j MCP Standalone Server...");
+    console.error(`Environment: ${config.NODE_ENV}`);
+    console.error(`Neo4j URI: ${config.NEO4J_URI}`);
+    console.error(`Neo4j User: ${config.NEO4J_USER}`);
+    console.error(`Encryption: ${config.NEO4J_ENCRYPTED ? 'Enabled' : 'Disabled'}`);
+    console.error(`API Key Required: ${config.MCP_API_KEY_REQUIRED ? 'Yes' : 'No'}`);
+    
+    // Test Neo4j connection before proceeding
+    console.error("Testing Neo4j connection...");
+    const connectionTest = await testNeo4jConnection(config);
+    if (!connectionTest) {
+      throw new Error("Failed to connect to Neo4j database");
+    }
+    
+    // Wrap server with authentication if enabled
+    if (config.MCP_API_KEY_REQUIRED) {
+      console.error("Enabling API key authentication...");
+      wrapWithAuth(server, config);
+    }
+    
+    // Register all tools with validated config
+    console.error("Registering tools...");
+    registerAllTools(server, config);
+    console.error("All tools registered successfully");
+    
     const transport = new StdioServerTransport();
     await server.connect(transport);
     console.error("Neo4j MCP Server is running on stdio");
